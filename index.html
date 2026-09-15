@@ -50,19 +50,31 @@ body {
   position: relative;
   background: conic-gradient(
     from 0deg,
-    #8b5cf6 0deg 60deg,
-    #6d5bd0 60deg 120deg,
-    #a855f7 120deg 180deg,
-    #252a52 180deg 240deg,
-    #4c4a8a 240deg 300deg,
-    #7c3aed 300deg 360deg
+    #8b5cf6 0deg 51.429deg,
+    #6d5bd0 51.429deg 102.857deg,
+    #a855f7 102.857deg 154.286deg,
+    #252a52 154.286deg 205.714deg,
+    #4c4a8a 205.714deg 257.143deg,
+    #7c3aed 257.143deg 308.571deg,
+    #5b21b6 308.571deg 360deg
   );
   box-shadow:
     0 0 40px 8px rgba(139, 92, 246, 0.55),
     0 0 90px 25px rgba(139, 92, 246, 0.3),
     inset 0 0 30px rgba(0, 0, 0, 0.35);
   transition: transform 4s cubic-bezier(.17, .67, .12, .99);
+  overflow: hidden;
 }
+.wedge-highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.2) 55%, transparent 78%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.wedge-highlight.show { opacity: 1; }
 .logo {
   position: absolute;
   top: 50%;
@@ -78,12 +90,44 @@ body {
   height: 100%;
   object-fit: contain;
 }
-.logo.l0 { transform: rotate(30deg) translate(0, -140px) rotate(-30deg); }
-.logo.l1 { transform: rotate(90deg) translate(0, -140px) rotate(-90deg); }
-.logo.l2 { transform: rotate(150deg) translate(0, -140px) rotate(-150deg); }
-.logo.l3 { transform: rotate(210deg) translate(0, -140px) rotate(-210deg); }
-.logo.l4 { transform: rotate(270deg) translate(0, -140px) rotate(-270deg); }
-.logo.l5 { transform: rotate(330deg) translate(0, -140px) rotate(-330deg); }
+.logo.l0 { transform: rotate(25.714deg) translate(0, -140px) rotate(-25.714deg); }
+.logo.l1 { transform: rotate(77.143deg) translate(0, -140px) rotate(-77.143deg); }
+.logo.l2 { transform: rotate(128.571deg) translate(0, -140px) rotate(-128.571deg); }
+.logo.l3 { transform: rotate(180deg) translate(0, -140px) rotate(-180deg); }
+.logo.l4 { transform: rotate(231.429deg) translate(0, -140px) rotate(-231.429deg); }
+.logo.l5 { transform: rotate(282.857deg) translate(0, -140px) rotate(-282.857deg); }
+.logo.l6 { transform: rotate(334.286deg) translate(0, -140px) rotate(-334.286deg); }
+.result-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 6, 30, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 4;
+}
+.result-overlay.show { opacity: 1; }
+.result-name {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: clamp(1.05rem, 4.8vw, 1.5rem);
+  text-align: center;
+  padding: 0 1.4rem;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  transform: translateY(6px) scale(0.94);
+  transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+}
+.result-overlay.show .result-name {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
 .star {
   position: absolute;
   top: 50%;
@@ -115,6 +159,7 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .wheel { transition: none; }
+  .wedge-highlight, .result-overlay, .result-name { transition: none; }
 }
 @media (max-width: 480px) {
   #spinBtn {
@@ -135,21 +180,63 @@ body {
       <div class="logo l3"><img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+Rm9ydG5pdGU8L3RpdGxlPjxwYXRoIGQ9Im0xNS43NjcgMTQuMTcxLjA5Ny01LjA1SDEyLjRWNS4xOTdoMy45OUwxNi44NzIgMEg3LjEyOHYyNGw1LjI3MS0uOTg1VjE0LjE3eiIvPjwvc3ZnPg==" alt="Fortnite"></div>
       <div class="logo l4"><img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+VmFsb3JhbnQ8L3RpdGxlPjxwYXRoIGQ9Ik0yMy43OTIgMi4xNTJhLjI1Mi4yNTIgMCAwIDAtLjA5OC4wODNjLTMuMzg0IDQuMjMtNi43NjkgOC40Ni0xMC4xNSAxMi42OS0uMTA3LjA5My0uMDI1LjI4OC4xMTkuMjY1IDIuNDM5LjAwMyA0Ljg3NyAwIDcuMzE2LjAwMWEuNjYuNjYgMCAwIDAgLjU1Mi0uMjVjLjc3NC0uOTY3IDEuNTUtMS45MzQgMi4zMjQtMi45MDNhLjcyLjcyIDAgMCAwIC4xNDQtLjQ5Yy0uMDAyLTMuMDc3IDAtNi4xNTMtLjAwMy05LjIzLjAxNi0uMTEtLjEtLjIwNi0uMjA0LS4xNjd6TS4wNzcgMi4xNjZjLS4wNzcuMDM4LS4wNzQuMTMyLS4wNzYuMjA1LjAwMiAzLjA3NC4wMDEgNi4xNS4wMDEgOS4yMjVhLjY3OS42NzkgMCAwIDAgLjE1OC40NjNsNy42NCA5LjU1Yy4xMi4xNTIuMzA4LjI1LjUwNS4yNDcgMi40NTUgMCA0LjkxLjAwMyA3LjM2NSAwIC4xNDIuMDIuMjIyLS4xNzQuMTE2LS4yNjVDMTAuNjYxIDE1LjE3NiA1LjUyNiA4Ljc2Ni40IDIuMzVjLS4wOC0uMDk0LS4xNzQtLjI3Mi0uMzIyLS4xODR6Ii8+PC9zdmc+" alt="Valorant"></div>
       <div class="logo l5"><img src="data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjZmZmZmZmIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU+QmF0dGxlLm5ldDwvdGl0bGU+PHBhdGggZD0iTTE4Ljk0IDguMjk2QzE1LjkgNi44OTIgMTEuNTM0IDYgNy40MjYgNi4zMzJjLjIwNi0xLjM2LjcxNC0yLjMwOCAxLjU0OC0yLjUwOCAxLjE0OC0uMjc1IDIuNC40OCAzLjU5NCAxLjg1NC43ODIuMTAyIDEuNzEuMjggMi4zNTUuNDI5QzEyLjc0NyAyLjAxMyA5LjgyOC0uMjgyIDcuNjA3LjU2NWMtMS42ODguNjQ0LTIuNTUzIDIuOTctMi40NDggNi4wOTQtMi4yLjQ2OC0zLjkxNSAxLjMtNS4wMTMgMi40OTUtLjA1Ni4wNjUtLjE4MS4yMjctLjEzNy4zMDUuMDM0LjA1OC4xNDYtLjAwOC4xOTQtLjA0IDEuMjc0LS44OSAyLjkwNC0xLjM3MyA1LjAyNy0xLjY3Ni4zMDMgMy4zMzMgMS43MTMgNy41NiA0LjA1NSAxMC45NTItMS4yOC41MDItMi4zNTYuNTM2LTIuOTQ2LS4wODctLjgxMi0uODU2LS43ODQtMi4zMTgtLjE5LTQuMDRhMjYuNzY0IDI2Ljc2NCAwIDAgMS0uODA3LTIuMjU0Yy0yLjQ1OSAzLjkzNC0yLjk4NiA3LjYxLTEuMTQzIDkuMTEgMS40MDIgMS4xNCAzLjg0Ny43MjUgNi41MDItLjkyNiAxLjUwNSAxLjY3MiAzLjA4MyAyLjc0IDQuNjY3IDMuMDk0LjA4NC4wMTUuMjg3LjA0My4zMzItLjAzNC4wMzQtLjA2LS4wOC0uMTI0LS4xMzEtLjE0OS0xLjQwOC0uNjU3LTIuNjQtMS44MjgtMy45NjQtMy41MTUgMi43MzUtMS45MjkgNS42OTEtNS4yNjMgNy40NTctOC45ODggMS4wNzYuODYgMS42NCAxLjc3MyAxLjM5OCAyLjU5NS0uMzM2IDEuMTMxLTEuNjE1IDEuODQtMy40MDMgMi4xODVhMjcuNjk3IDI3LjY5NyAwIDAgMS0xLjU0OCAxLjgyNmM0LjYzNC4xNiA4LjA4LTEuMjIgOC40NTgtMy41NjUuMjg2LTEuNzg2LTEuMjk1LTMuNjk2LTQuMDUzLTUuMTcuNjk2LTIuMTM5LjgzMi00LjA0LjM0Ni01LjU4OC0uMDI5LS4wOC0uMTA2LS4yNy0uMTk2LS4yNy0uMDY4IDAtLjA2Ny4xMy0uMDYzLjE4Ny4xMzUgMS41NDctLjI2MyAzLjItMS4wNjIgNS4xOXptLTguNTMzIDkuODY5Yy0xLjk2LTMuMTQ1LTMuMDktNi44NDktMy4wODItMTAuNTk0IDMuNzAyLS4xMjQgNy40NzQuNzQ4IDEwLjcxNCAyLjYyNy0xLjc0MyAzLjI2OS00LjM4NSA2LjEtNy42MzMgNy45NjZoLjAwMXoiLz48L3N2Zz4=" alt="Battle.net"></div>
+      <div class="logo l6"><img src="data:image/png;base64,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" alt="Dofus"></div>
+      <div class="wedge-highlight" id="wedgeHighlight"></div>
       <div class="star"></div>
+    </div>
+    <div class="result-overlay" id="resultOverlay">
+      <span class="result-name" id="resultName"></span>
     </div>
   </div>
   <button id="spinBtn">SPIN</button>
 </div>
 <script>
-let rotation = 0;
+const GAMES = ['League of Legends', 'Counter-Strike', 'Rocket League', 'Fortnite', 'Valorant', 'Battle.net', 'Dofus'];
+const SEGMENT_SIZE = 360 / GAMES.length;
+
 const wheel = document.getElementById('wheel');
 const spinBtn = document.getElementById('spinBtn');
+const wedgeHighlight = document.getElementById('wedgeHighlight');
+const resultOverlay = document.getElementById('resultOverlay');
+const resultName = document.getElementById('resultName');
+
+let rotation = 0;
+let revealTimer = null;
+
+function wedgeClipPath(index) {
+  const r = 300;
+  const toPoint = (deg) => {
+    const rad = (deg * Math.PI) / 180;
+    const x = 50 + r * Math.sin(rad);
+    const y = 50 - r * Math.cos(rad);
+    return `${x}% ${y}%`;
+  };
+  const a0 = index * SEGMENT_SIZE;
+  const a1 = a0 + SEGMENT_SIZE;
+  return `polygon(50% 50%, ${toPoint(a0)}, ${toPoint(a1)})`;
+}
+
+function resetResult() {
+  wedgeHighlight.classList.remove('show');
+  resultOverlay.classList.remove('show');
+}
+
 spinBtn.addEventListener('click', () => {
+  clearTimeout(revealTimer);
+  resetResult();
   spinBtn.disabled = true;
-  const randomAngle = Math.floor(Math.random() * 360);
+  const randomAngle = Math.random() * 360;
   rotation += 360 * 5 + randomAngle;
   wheel.style.transform = `rotate(${rotation}deg)`;
-  setTimeout(() => { spinBtn.disabled = false; }, 4000);
+  revealTimer = setTimeout(() => {
+    const normalized = ((360 - (rotation % 360)) % 360 + 360) % 360;
+    const index = Math.floor(normalized / SEGMENT_SIZE) % GAMES.length;
+    wedgeHighlight.style.clipPath = wedgeClipPath(index);
+    wedgeHighlight.classList.add('show');
+    resultName.textContent = GAMES[index];
+    resultOverlay.classList.add('show');
+    spinBtn.disabled = false;
+  }, 4000);
 });
 </script>
 </body>
